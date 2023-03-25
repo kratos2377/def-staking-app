@@ -1,9 +1,14 @@
 import React , {Component} from "react";
 import Navbar from './Navbar'
+import Main from './Main'
 import Web3  from "web3";
+import './App.css';
 import Tether from '../truffle_abis/Tether.json'
 import RWD from '../truffle_abis/RWD.json'
 import DecentralBank from '../truffle_abis/DecentralBank.json'
+import ParticleSettings from './ParticleSettings';
+
+
 class App extends Component {
     
 async UNSAFE_componentWillUnmount() {
@@ -53,9 +58,9 @@ async loadBlockChainData() {
 
 
     //Load DecentralBank contract 
-    const decentralBankData = RWD.networks[networkId]
+    const decentralBankData = DecentralBank.networks[networkId]
     if(decentralBankData) {
-        const decentralBank = new web3.eth.Contract(RWD.abi , decentralBankData.address)
+        const decentralBank = new web3.eth.Contract(DecentralBank.abi , decentralBankData.address)
         this.setState({decentralBank})
         let stakingBalance = await decentralBank.methods.stakingBalance(this.state.account).call()
         this.setState({stakingBalance: stakingBalance.toString()})
@@ -64,6 +69,24 @@ async loadBlockChainData() {
     }
 
 
+}
+
+stakeTokens = (amount) => {
+    let ethAmount = Web3.utils.fromWei(amount, 'ether');
+    this.setState({loading: true});
+    this.state.tether.methods.approve(this.state.decentralBank._address, amount).send({from: this.state.account}).on('transactionHash', (hash) => {
+        // grab decentralBank and then grab depositTokens()....send from the state of Account....
+        this.state.decentralBank.methods.depositTokens(amount).send({from: this.state.account}).on('transactionHash', (hash) => {
+            this.setState({loading: false});
+        })
+    })
+}
+
+unstakeTokens = () => {
+    this.setState({loading: true })
+    this.state.decentralBank.methods.unstakeTokens().send({from: this.state.account}).on('transactionHash', (hash) => {
+      this.setState({loading:false})
+    }) 
 }
 
     constructor(props) {
@@ -81,14 +104,34 @@ async loadBlockChainData() {
     }
 
     render() {
-        return (
-            <div>
-            <Navbar account={this.state.account}/>
-          <div className="text-center">
-                    <h>Hello World</h>
+        let content;
+        {this.state.loading ? 
+            content = <p id="loader" className="text-center" style={{margin: '30px'}}>Loading...</p> 
+            :content = <Main 
+                tetherBalance = {this.state.tetherBalance}
+                rewardBalance = {this.state.rewardBalance}
+                stakingBalance = {this.state.stakingBalance}
+                stakeTokens = {this.stakeTokens}
+                unstakeTokens={this.unstakeTokens}
+            />}
+            
+
+            return (
+            <div className="App" style={{position: 'relative'}}>
+                <div style={{position: 'absolute'}}>
+                    <ParticleSettings />
+                </div>
+                <Navabr account={this.state.account} />
+                <div className="container-fluid mt-5">
+                    <div className="row">
+                        <main role="main" className="col-lg-12 ml-auto mr-auto" style={{maxWidth: '600px', minHeight: '100vm'}}>
+                            <div>
+                               {content}
+                            </div>
+                        </main>
+                    </div>
+                </div>
             </div>
-            </div>
-  
         )
     }
 }
