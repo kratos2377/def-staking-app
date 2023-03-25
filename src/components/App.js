@@ -121,7 +121,7 @@ unstakeTokens = () => {
                 <div style={{position: 'absolute'}}>
                     <ParticleSettings />
                 </div>
-                <Navabr account={this.state.account} />
+                <Navbar account={this.state.account} />
                 <div className="container-fluid mt-5">
                     <div className="row">
                         <main role="main" className="col-lg-12 ml-auto mr-auto" style={{maxWidth: '600px', minHeight: '100vm'}}>

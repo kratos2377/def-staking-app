@@ -35,7 +35,7 @@ class Main extends Component {
                             <div className="input-group mb-4">
                                 <input type="text" placeholder="0" required ref={(input) => {this.input = input}} />
                                 <div className="input-group-open">
-                                    <div className="inout-group-text">
+                                    <div className="input-group-text">
                                         <img src={tetherImg} alt="tether icon" height="32" style={{ marginRight: '6px'}}/>
                                         USDT
                                     </div>
