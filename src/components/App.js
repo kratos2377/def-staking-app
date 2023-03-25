@@ -2,8 +2,10 @@ import React , {Component} from "react";
 import Navbar from './Navbar'
 import Web3  from "web3";
 import Tether from '../truffle_abis/Tether.json'
+import RWD from '../truffle_abis/RWD.json'
+import DecentralBank from '../truffle_abis/DecentralBank.json'
 class App extends Component {
-
+    
 async UNSAFE_componentWillUnmount() {
     await this.loadWeb3()
     await this.loadBlockChainData()
@@ -30,10 +32,37 @@ async loadBlockChainData() {
     //Load Tether Contract
     const tetherData = Tether.networks[networkId]
     if(tetherData) {
-        const tether = web3.eth.Contract(Tether.abi , tetherData.address)
+        const tether = new web3.eth.Contract(Tether.abi , tetherData.address)
         this.setState({tether})
-        let tetherBalance = tether.methods.balanceOf(this.state.account).call()
+        let tetherBalance = await tether.methods.balanceOf(this.state.account).call()
+        this.setState({tetherBalance: tetherBalance.toString()})
+    } else{
+        window.alert("Error! Tether contract not deployed")
     }
+
+    //Load RWD Contract
+    const rwdData = RWD.networks[networkId]
+    if(rwdData) {
+        const rwd = new web3.eth.Contract(RWD.abi , rwdData.address)
+        this.setState({rwd})
+        let rwdBalance = await rwd.methods.balanceOf(this.state.account).call()
+        this.setState({rwdBalance: rwdBalance.toString()})
+    } else{
+        window.alert("Error! RWD contract not deployed")
+    }
+
+
+    //Load DecentralBank contract 
+    const decentralBankData = RWD.networks[networkId]
+    if(decentralBankData) {
+        const decentralBank = new web3.eth.Contract(RWD.abi , decentralBankData.address)
+        this.setState({decentralBank})
+        let stakingBalance = await decentralBank.methods.stakingBalance(this.state.account).call()
+        this.setState({stakingBalance: stakingBalance.toString()})
+    } else{
+        window.alert("Error! DecentralBank contract not deployed")
+    }
+
 
 }
 
